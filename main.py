@@ -17,8 +17,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 user_selections = {}
 
 # Цільовий ID користувача для відправки додаткового повідомлення
-# TARGET_USER_ID = 484387083 # Замініть на дійсний ID, якщо він відрізняється
-TARGET_USER_ID = os.getenv("TARGET_USER_ID")
+TARGET_USER_ID = 484387083 # Замініть на дійсний ID потрібного користувача
 
 # --- Функції для відображення меню ---
 
@@ -92,7 +91,7 @@ async def handle_quantity_input(update: Update, context: ContextTypes.DEFAULT_TY
         if quantity <= 0:
             raise ValueError
         
-        user_id = update.effective_user.id
+        user_id = update.effective_user.id # Отримуємо ID поточного користувача
         user_selections[user_id]['quantity'] = quantity
         
         # Видаляємо прапор очікування кількості
@@ -121,6 +120,7 @@ async def handle_quantity_input(update: Update, context: ContextTypes.DEFAULT_TY
         )
         try:
             # Відправляємо повідомлення адміністратору/користувачу з TARGET_USER_ID
+            # Важливо: користувач TARGET_USER_ID мав попередньо запустити бота.
             await context.bot.send_message(chat_id=TARGET_USER_ID, text=admin_summary_text, parse_mode='Markdown')
             logger.info(f"Повідомлення про замовлення відправлено користувачу {TARGET_USER_ID}")
         except Exception as e:
@@ -145,15 +145,11 @@ async def handle_quantity_input(update: Update, context: ContextTypes.DEFAULT_TY
 
 async def back_to_color_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Повертає до вибору кольору."""
-    # При поверненні назад, можливо, потрібно видалити або скоригувати попередній вибір,
-    # але для цієї логіки ми просто перепоказуємо меню.
     await send_main_menu(update, context) # Викликаємо функцію, яка показує головне меню
     logger.info(f"Користувач {update.effective_user.id} повернувся до вибору кольору.")
 
 async def back_to_size_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Повертає до вибору розміру."""
-    # При поверненні назад з кількості, треба показати меню розмірів.
-    # Відновлюємо стан, щоб користувач міг знову вибрати розмір.
     user_id = update.effective_user.id
     current_color = user_selections[user_id]['color'] if user_id in user_selections and 'color' in user_selections[user_id] else None
 
@@ -174,20 +170,6 @@ async def back_to_size_selection(update: Update, context: ContextTypes.DEFAULT_T
         # Якщо колір не збережений (наприклад, бот перезапустився), повертаємо до головного меню
         await send_main_menu(update, context)
 
-# --- Доданий код для відправки повідомлення конкретному користувачу ---
-admin_summary_text = (
-    f"**Нове замовлення від користувача {user_id}:**\n"
-    f"Колір: **{final_color}**\n"
-    f"Розмір: **{final_size}**\n"
-    f"Кількість пар: **{final_quantity}**"
-)
-try:
-    # Відправляємо повідомлення адміністратору/користувачу з TARGET_USER_ID
-    await context.bot.send_message(chat_id=TARGET_USER_ID, text=admin_summary_text, parse_mode='Markdown')
-    logger.info(f"Повідомлення про замовлення відправлено користувачу {TARGET_USER_ID}")
-except Exception as e:
-    logger.error(f"Не вдалося відправити повідомлення користувачу {TARGET_USER_ID}: {e}")
-# --- Кінець доданого коду ---
 
 # --- Функція запуску бота ---
 def main() -> None:
