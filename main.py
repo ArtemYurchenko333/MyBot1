@@ -173,6 +173,20 @@ async def back_to_size_selection(update: Update, context: ContextTypes.DEFAULT_T
         # Якщо колір не збережений (наприклад, бот перезапустився), повертаємо до головного меню
         await send_main_menu(update, context)
 
+# --- Доданий код для відправки повідомлення конкретному користувачу ---
+admin_summary_text = (
+    f"**Нове замовлення від користувача {user_id}:**\n"
+    f"Колір: **{final_color}**\n"
+    f"Розмір: **{final_size}**\n"
+    f"Кількість пар: **{final_quantity}**"
+)
+try:
+    # Відправляємо повідомлення адміністратору/користувачу з TARGET_USER_ID
+    await context.bot.send_message(chat_id=TARGET_USER_ID, text=admin_summary_text, parse_mode='Markdown')
+    logger.info(f"Повідомлення про замовлення відправлено користувачу {TARGET_USER_ID}")
+except Exception as e:
+    logger.error(f"Не вдалося відправити повідомлення користувачу {TARGET_USER_ID}: {e}")
+# --- Кінець доданого коду ---
 
 # --- Функція запуску бота ---
 def main() -> None:
