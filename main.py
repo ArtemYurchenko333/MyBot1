@@ -17,7 +17,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 user_selections = {}
 
 # Цільовий ID користувача для відправки додаткового повідомлення
-TARGET_USER_ID = 484387083 # Замініть на дійсний ID потрібного користувача
+TARGET_USER_ID = os.getenv("TARGET_USER_ID")
 
 # --- Функції для відображення меню ---
 
