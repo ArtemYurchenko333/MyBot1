@@ -17,7 +17,7 @@ TOKEN = os.getenv("BOT_TOKEN")
 user_selections = {}
 
 # Цільовий ID користувача для відправки додаткового повідомлення
-TARGET_USER_ID = os.getenv("TARGET_USER_ID")
+TARGET_USER_ID = 484387083 # Замініть на дійсний ID потрібного користувача
 
 # --- Функції для відображення меню ---
 
@@ -92,21 +92,6 @@ async def handle_quantity_input(update: Update, context: ContextTypes.DEFAULT_TY
             raise ValueError
         
         user_id = update.effective_user.id # Отримуємо ID поточного користувача
-        user_first_name = update.effective_user.first_name # Ім'я користувача
-        user_last_name = update.effective_user.last_name # Прізвище користувача
-        user_username = update.effective_user.username # Логін (username) користувача
-        
-        # Формуємо рядок з інформацією про користувача для повідомлення
-        user_info_str = f"**Користувач:** "
-        if user_first_name:
-            user_info_str += user_first_name
-        if user_last_name:
-            user_info_str += f" {user_last_name}"
-        if user_username:
-            user_info_str += f" (@{user_username})"
-        else:
-            user_info_str += f" (ID: {user_id})" # Якщо username немає, вказуємо ID
-
         user_selections[user_id]['quantity'] = quantity
         
         # Видаляємо прапор очікування кількості
@@ -124,12 +109,11 @@ async def handle_quantity_input(update: Update, context: ContextTypes.DEFAULT_TY
             f"Кількість пар: **{final_quantity}**"
         )
         await update.message.reply_text(summary_text, parse_mode='Markdown')
-        logger.info(f"Підсумок покупки для {user_info_str}: Колір={final_color}, Розмір={final_size}, Кількість={final_quantity}")
+        logger.info(f"Підсумок покупки для {user_id}: Колір={final_color}, Розмір={final_size}, Кількість={final_quantity}")
 
         # --- Доданий код для відправки повідомлення конкретному користувачу ---
         admin_summary_text = (
-            f"{user_info_str}\n"
-            f"**Нове замовлення:**\n"
+            f"**Нове замовлення від користувача {user_id}:**\n"
             f"Колір: **{final_color}**\n"
             f"Розмір: **{final_size}**\n"
             f"Кількість пар: **{final_quantity}**"
